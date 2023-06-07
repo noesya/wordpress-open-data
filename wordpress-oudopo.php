@@ -1,35 +1,35 @@
 <?php
 /**
-* Plugin Name: Open Data
-* Plugin URI: https://github.com/noesya/wordpress-open-data
-* Description: Open WordPress data.
+* Plugin Name: Oudopo
+* Plugin URI: https://github.com/noesya/oudopo-wordpress
+* Description: Export de WordPress vers Oudopo, l'ouvroir de données potentielles.
 * Author: noesya
 * Author URI: https://www.noesya.coop
-* Version: v0.0.1
+* Version: v0.0.2
 **/
 /*
 Based on https://gist.github.com/jsnelders/fd22ebc26530468125ffed2d5d1eb279 by Jason Snelders
 */
 
-function od_add_meta_boxes_post( $post ) {
+function oudopo_add_meta_boxes_post( $post ) {
   add_meta_box( 
-      'open-data',
-      __( 'Open Data' ),
-      'od_meta_box_content',
+      'oudopo',
+      __( 'Oudopo' ),
+      'oudopo_meta_box_content',
       'post'
   );
 }
-add_action( 'add_meta_boxes_post', 'od_add_meta_boxes_post' );
+add_action( 'add_meta_boxes_post', 'oudopo_add_meta_boxes_post' );
 
-function od_meta_box_content( $post ) {
-  $object = od_export_post($post);
+function oudopo_meta_box_content( $post ) {
+  $object = oudopo_export_post($post);
   echo '<pre class="CodeMirror">';
   $json = json_encode($object, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
   echo htmlentities($json);
   echo '</pre>';
 }
 
-function od_export_post( $post ) {
+function oudopo_export_post( $post ) {
   $object = array(
     'id' => $post->ID,
     'date' => $post->post_date_gmt,

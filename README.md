@@ -1,4 +1,4 @@
-# WordPress Open Data
+# WordPress Oudopo
 
 Ce plugin a pour objectif de faciliter la sortie des données de WordPress à un format interopérable.
 
