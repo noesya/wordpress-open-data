@@ -5,7 +5,7 @@
 * Description: Export de WordPress vers Oudopo, l'ouvroir de données potentielles.
 * Author: noesya
 * Author URI: https://www.noesya.coop
-* Version: v0.0.6
+* Version: v1.0.0
 **/
 
 if (WP_DEBUG) {
@@ -16,6 +16,7 @@ if (WP_DEBUG) {
 }
 defined( 'OUDOPO_API' ) or define( 'OUDOPO_API', $oudopoApi );
 
+include_once( plugin_dir_path( __FILE__ ) . 'includes/functions.php' );
 include_once( plugin_dir_path( __FILE__ ) . 'includes/settings.php' );
 include_once( plugin_dir_path( __FILE__ ) . 'includes/posts.php' );
 

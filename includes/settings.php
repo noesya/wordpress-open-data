@@ -71,6 +71,88 @@ function oudopo_render_settings_page() {
 			submit_button( 'Enregistrer' );
 			?>
 		</form>
+    <p>
+      <a id="oudopo-sync-everything" class="button button-primary">
+        Tout synchroniser
+        (<?php echo wp_count_posts()->publish; ?> publications)
+      </a>
+    </p>
+    <div id="oudoup-logs"></div>
+    <script>
+      jQuery(document).ready(function($) {
+        $button = $("#oudopo-sync-everything");
+        $logs = $("#oudoup-logs");
+        index = 0;
+        function oudopo_sync_everything () {
+          $.post(ajaxurl, 
+            {
+              "action": "oudopo_sync_post",
+              "index": index
+            }, 
+            function(response) {
+              status = response['status'];
+              index = response['index'];
+              $message = response['message'];
+              $logs.append($message, '<br>');
+              if (status == 'ok') {
+                oudopo_sync_everything();
+              }
+            }
+          );
+        };
+        $button.on('click', function() {
+          oudopo_sync_everything();
+        });
+      });
+    </script>
 	</div>
   <?php
+}
+
+add_action( 'wp_ajax_oudopo_sync_post', 'oudopo_sync_post_handler' );
+
+function oudopo_sync_post_handler () {
+  $index = $_POST['index'];
+  $args = array(
+    'post_type' => array('post','page'),
+    'post_status' => 'publish',
+    'posts_per_page' => 1,
+    'offset' => $index,
+    'ignore_sticky_posts' => true,
+  );
+  $query = new WP_Query($args);
+  $post = $query->posts[0];
+  $data = oudopo_export_post( $post );
+  $url = OUDOPO_API . '/content';
+  $response = wp_remote_post($url, array(
+    'method' => 'POST',
+    'headers' => array(
+      'Accept' => 'application/json',
+      'Content-Type' => 'application/json'
+    ),
+    'mode' => 'no-cors', 
+    'body' => json_encode(
+      array(
+        'access_key' => get_option( 'oudopo_access_key' ),
+        'secret' => get_option( 'oudopo_secret' ),
+        'data' => $data
+      )
+    )
+  ));
+  if (is_wp_error( $response )) {
+    wp_send_json(array(
+      'status' => 'error',
+      'message' => 'Erreur lors de la synchronisation'
+    ));
+  } else {
+    $total = wp_count_posts()->publish;
+    $next = $index + 1;
+    $message = $post->post_title  . ' (' . $next . '/' . $total . ')';
+    wp_send_json(array(
+      'status' => 'ok',
+      'index' => $next,
+      'message' => $message
+    ));  
+  }
+  wp_die();
 }
