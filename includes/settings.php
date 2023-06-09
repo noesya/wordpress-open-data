@@ -94,9 +94,7 @@ function oudopo_render_settings_page() {
               index = response['index'];
               $message = response['message'];
               $logs.append($message, '<br>');
-              if (status == 'ok') {
-                oudopo_sync_everything();
-              }
+              oudopo_sync_everything();
             }
           );
         };
@@ -140,19 +138,21 @@ function oudopo_sync_post_handler () {
     )
   ));
   if (is_wp_error( $response )) {
-    wp_send_json(array(
+    $array = array(
       'status' => 'error',
+      'index' => $index, // Play it again, Sam
       'message' => 'Erreur lors de la synchronisation'
-    ));
+    )
   } else {
     $total = wp_count_posts()->publish;
     $next = $index + 1;
     $message = $post->post_title  . ' (' . $next . '/' . $total . ')';
-    wp_send_json(array(
+    $array = array(
       'status' => 'ok',
       'index' => $next,
       'message' => $message
-    ));  
+    );
   }
+  wp_send_json($array);
   wp_die();
 }
