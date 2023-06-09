@@ -107,6 +107,7 @@ function oudopo_render_settings_page() {
           );
         };
         $button.on('click', function() {
+          $button.hide();
           oudopo_sync_everything();
         });
       });
