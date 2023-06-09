@@ -91,9 +91,17 @@ function oudopo_render_settings_page() {
             }, 
             function(response) {
               status = response['status'];
+              html = '';
+              if (status === 'ok') {
+                html += '<span class="dashicons dashicons-yes"></span> ';
+              } else {
+                html += '<span class="dashicons dashicons-no"></span> ';
+              }
               index = response['index'];
-              $message = response['message'];
-              $logs.append($message, '<br>');
+              message = response['message'];
+              html += message;
+              html += '<br>';
+              $logs.append(html);
               oudopo_sync_everything();
             }
           );
@@ -137,21 +145,16 @@ function oudopo_sync_post_handler () {
       )
     )
   ));
+  $next = $index + 1;
+  $total = wp_count_posts()->publish;
+  $array = array(
+    'index' => $next,
+    'message' => $post->post_title  . ' - ' . $post->ID . ' (' . $next . '/' . $total . ')'
+  );
   if (is_wp_error( $response )) {
-    $array = array(
-      'status' => 'error',
-      'index' => $index, // Play it again, Sam
-      'message' => 'Erreur lors de la synchronisation'
-    )
+    $array['status'] = 'error';
   } else {
-    $total = wp_count_posts()->publish;
-    $next = $index + 1;
-    $message = $post->post_title  . ' (' . $next . '/' . $total . ')';
-    $array = array(
-      'status' => 'ok',
-      'index' => $next,
-      'message' => $message
-    );
+    $array['status'] = 'ok';
   }
   wp_send_json($array);
   wp_die();
